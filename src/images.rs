@@ -1,7 +1,9 @@
+use std::fs::File;
+use std::io::{Error, ErrorKind, BufReader};
 use std::process::exit;
 
-use image::{DynamicImage, ImageReader};
-use crate::errors::LogErr;
+use image::{DynamicImage, ImageFormat, ImageReader};
+use crate::errors::{LogErr};
 use crate::parsing::check_path;
 
 
@@ -12,13 +14,29 @@ pub fn open_path(path: &String) -> DynamicImage{
         false => { println!("ERROR: Path not found."); exit(404) }
     };
 
-    let image_r = ImageReader::open(valid_path)
-        .log_err("Unable to get img buffreader.", 1)
-        .with_guessed_format()
-        .log_err("Unable to get file format.", 2);
+    let mut image_r: ImageReader<BufReader<File>> = ImageReader::open(valid_path)
+        .log_err("Unable to get img buffreader.", 1);
+    determine_format(&image_r).log_err("Invalid filetype. Refer to the list in \"pixtools -h\"", 599);
 
-    let decoded_img = image_r.decode().log_err("Unable to decode image at PATH", 404);
-    println!("Image opened and decoded");
+    // Image passed varifications, start file manipulation.
+    image_r.clear_format();
+    image_r.no_limits();
 
-    decoded_img
+    image_r.decode().log_err("Unable to decode image at PATH", 404)
 }
+
+// I don't like really long code horizontally, so you will have to deal with all these statements.
+fn determine_format(image_reader: &ImageReader<BufReader<File>>) -> Result<(), Error> {
+    match image_reader.format() {
+        Some(f) if f == ImageFormat::Png => Ok(()),
+        Some(f) if f == ImageFormat::Jpeg => Ok(()),
+        Some(f) if f == ImageFormat::Gif => Ok(()),
+        Some(f) if f == ImageFormat::WebP => Ok(()),
+        Some(_) => Err(Error::new(ErrorKind::InvalidData, "Invalid filetype")),
+        None => {
+            println!("No image format found. Odd. Its almost like you should use an image.");
+            Err(Error::new(ErrorKind::NotFound, "No Image Format"))
+        },
+    }
+}
+

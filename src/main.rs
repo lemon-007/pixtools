@@ -28,6 +28,10 @@ fn main() {
         true => http::get_img(&file_location, METHOD::PATH),
         false => http::get_img(&file_location, METHOD::URL),
     };
+
+    order.into_iter().for_each(|_t| {
+        todo!() // Put it through each function that could be a token. Im done for now.
+    });
 }
 
 fn parse_url(args: &Vec<String>) -> Result<String, ParsingError> {
