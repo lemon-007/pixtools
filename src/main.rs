@@ -1,8 +1,11 @@
 mod errors;
 mod parsing;
+mod http;
+mod images;
 
 use std::{env, process::exit};
 use errors::ParsingError;
+use parsing::METHOD;
 
 use crate::parsing::{sort_tokens, tokenize_args};
 
@@ -19,10 +22,12 @@ fn main() {
     // Get each of the arguments, file them into order of operation. This is needed so we don't do things wrong.
     let tokens: Vec<parsing::TOKEN> = tokenize_args(&args);
     let order: Vec<parsing::TOKEN> = sort_tokens(&tokens);
+    println!("Success! Here is your url: \"{}\" and are your tokens in order: {:?}", file_location, order); // turn off later
 
-    if order.len() < 1 { println!("Did you really just give me a NULL vector? Fuck you. Add some more args next time.") }
-
-    println!("Success! Here is your url: \"{}\" and are your tokens in order: {:?}", file_location, order);
+    let _img = match order.contains(&parsing::TOKEN::PATH) {
+        true => http::get_img(&file_location, METHOD::PATH),
+        false => http::get_img(&file_location, METHOD::URL),
+    };
 }
 
 fn parse_url(args: &Vec<String>) -> Result<String, ParsingError> {

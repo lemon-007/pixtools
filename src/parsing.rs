@@ -1,4 +1,5 @@
 use std::process::exit;
+use std::path::Path;
 
 #[derive(PartialEq, Debug)]
 pub enum TOKEN {
@@ -7,6 +8,13 @@ pub enum TOKEN {
     GIF,
     PNG,
     ERR { wrong_token: String }
+}
+
+// What the user selected as an input (url default)
+#[derive(PartialEq)]
+pub enum METHOD {
+    URL,
+    PATH
 }
 
 // Turns shitty strings into clearly computable tokens
@@ -49,5 +57,11 @@ pub fn sort_tokens(tokens: &Vec<TOKEN>) -> Vec<TOKEN> {
         exit(1) 
     }
 
+    if sorted_tokens.len() < 1 { println!("Did you really just give me a NULL vector? Fuck you. Add some more args next time.") }
     return sorted_tokens
+}
+
+pub fn check_path(path: &String) -> bool {
+    let path_eval = Path::new(path);
+    path_eval.exists()
 }
