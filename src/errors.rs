@@ -3,7 +3,7 @@ use std::{fmt::Debug, process::exit};
 #[derive(Debug)]
 pub enum ParsingError {
     MissingArguments,
-    InvalidArgument,
+    _InvalidArgument,
 }
 
 pub trait LogErr<T> {
@@ -19,4 +19,9 @@ impl<T, E: Debug> LogErr<T> for Result<T, E> {
             }
         }
     }
-} 
+}
+
+pub fn log_err_fn(msg: &str, code: i32) {
+    println!("ERROR: {}", msg);
+    exit(code);
+}

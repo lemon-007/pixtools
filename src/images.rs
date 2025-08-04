@@ -11,7 +11,7 @@ use crate::parsing::check_path;
 pub fn open_path(path: &String) -> DynamicImage{
     let valid_path = match check_path(path) {
         true => path.to_owned(),
-        false => { println!("ERROR: Path not found."); exit(404) }
+        false => { println!("ERROR: Invalid path"); exit(404) }
     };
 
     let mut image_r: ImageReader<BufReader<File>> = ImageReader::open(valid_path)
@@ -19,10 +19,11 @@ pub fn open_path(path: &String) -> DynamicImage{
     determine_format(&image_r).log_err("Invalid filetype. Refer to the list in \"pixtools -h\"", 599);
 
     // Image passed varifications, start file manipulation.
-    image_r.clear_format();
     image_r.no_limits();
-
-    image_r.decode().log_err("Unable to decode image at PATH", 404)
+    match image_r.decode() {
+        Ok(d) => { return d },
+        Err(e) => { println!("ERROR: {}", e.to_string()); exit(1); }
+    };
 }
 
 // I don't like really long code horizontally, so you will have to deal with all these statements.
@@ -39,4 +40,3 @@ fn determine_format(image_reader: &ImageReader<BufReader<File>>) -> Result<(), E
         },
     }
 }
-

@@ -10,13 +10,6 @@ pub enum TOKEN {
     ERR { wrong_token: String }
 }
 
-// What the user selected as an input (url default)
-#[derive(PartialEq)]
-pub enum METHOD {
-    URL,
-    PATH
-}
-
 // Turns shitty strings into clearly computable tokens
 pub fn tokenize_args(args: &Vec<String>) -> Vec<TOKEN> {
     let mut tokens: Vec<TOKEN> = args.iter().map(|arg| {

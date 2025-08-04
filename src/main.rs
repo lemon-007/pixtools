@@ -5,11 +5,11 @@ mod images;
 
 use std::{env, process::exit};
 use errors::ParsingError;
-use parsing::METHOD;
 
 use crate::parsing::{sort_tokens, tokenize_args};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 { println!("No arguments. type \"pixtools help\"."); exit(1)}
 
@@ -22,16 +22,17 @@ fn main() {
     // Get each of the arguments, file them into order of operation. This is needed so we don't do things wrong.
     let tokens: Vec<parsing::TOKEN> = tokenize_args(&args);
     let order: Vec<parsing::TOKEN> = sort_tokens(&tokens);
-    println!("Success! Here is your url: \"{}\" and are your tokens in order: {:?}", file_location, order); // turn off later
 
     let _img = match order.contains(&parsing::TOKEN::PATH) {
-        true => http::get_img(&file_location, METHOD::PATH),
-        false => http::get_img(&file_location, METHOD::URL),
+        true => images::open_path(&file_location),
+        false => http::get_img(&file_location),
     };
 
-    order.into_iter().for_each(|_t| {
-        todo!() // Put it through each function that could be a token. Im done for now.
-    });
+    println!("Image decoded at PATH ({}).", file_location);
+
+    // order.into_iter().for_each(|_t| {
+    //     todo!() // Put it through each function that could be a token. Im done for now.
+    // });
 }
 
 fn parse_url(args: &Vec<String>) -> Result<String, ParsingError> {
@@ -43,10 +44,6 @@ fn parse_url(args: &Vec<String>) -> Result<String, ParsingError> {
         display_help_message();
         exit(0);
     } 
-    
-    else if !args[1].contains("url") {
-        return Err(ParsingError::InvalidArgument);
-    }
 
     let arg: &String = &args[1];
     Ok(arg.to_string())
