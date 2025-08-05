@@ -5,6 +5,7 @@ mod images;
 
 use std::{env, process::exit};
 use errors::ParsingError;
+use reqwest::blocking;
 
 use crate::parsing::{sort_tokens, tokenize_args};
 
@@ -25,10 +26,15 @@ async fn main() {
 
     let _img = match order.contains(&parsing::TOKEN::PATH) {
         true => images::open_path(&file_location),
-        false => http::get_img(&file_location),
+        false => http::open_url(&file_location),
     };
 
     println!("Image decoded at PATH ({}).", file_location);
+    let res_img = blocking::get("https://www.soyjak.st/soy/src/1754175526539v-0.png").unwrap_or_else(|e| {
+        println!("YOU'RE FUCKED! {}", e);
+        exit(1)
+    });
+    println!("{:?}", res_img);
 
     // order.into_iter().for_each(|_t| {
     //     todo!() // Put it through each function that could be a token. Im done for now.
