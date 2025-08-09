@@ -1,3 +1,4 @@
+use std::io::{stdout, Write};
 use std::process::exit;
 use std::path::Path;
 
@@ -57,8 +58,16 @@ pub fn check_path(path: &String) -> bool {
     path_eval.exists()
 }
 
-pub fn input() -> String {
+pub fn _input() -> String {
     let mut str = String::new();
     std::io::stdin().read_line(&mut str).unwrap();
     str
+}
+
+pub fn write_clear(msg: &str) {
+    let clear_str = format!("\r{}\r", " ".repeat(80));
+    print!("{clear_str}\r{msg}");
+    stdout().flush().unwrap_or_else(|_| {
+        println!("Unable to replace print line. Everything works but not the output.");
+    });
 }
