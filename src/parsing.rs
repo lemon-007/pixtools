@@ -49,12 +49,16 @@ pub fn sort_tokens(tokens: &Vec<TOKEN>) -> Vec<TOKEN> {
         println!("You must be retarded. That's ok. Type \"pixtools help\" for help.");
         exit(1) 
     }
-
-    if sorted_tokens.len() < 1 { println!("Did you really just give me a NULL vector? Fuck you. Add some more args next time.") }
     return sorted_tokens
 }
 
 pub fn check_path(path: &String) -> bool {
     let path_eval = Path::new(path);
     path_eval.exists()
+}
+
+pub fn input() -> String {
+    let mut str = String::new();
+    std::io::stdin().read_line(&mut str).unwrap();
+    str
 }

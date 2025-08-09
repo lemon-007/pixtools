@@ -20,8 +20,3 @@ impl<T, E: Debug> LogErr<T> for Result<T, E> {
         }
     }
 }
-
-pub fn _log_err_fn(msg: &str, code: i32) {
-    println!("ERROR: {}", msg);
-    exit(code);
-}

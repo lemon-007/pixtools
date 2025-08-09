@@ -21,7 +21,7 @@ pub fn open_path(path: &String) -> DynamicImage{
     // Image passed varifications, start file manipulation.
     image_r.no_limits();
     match image_r.decode() {
-        Ok(d) => { return d },
+        Ok(d) => { println!("Image decoded at PATH ({}).", path); return d },
         Err(e) => { println!("ERROR: {}", e.to_string()); exit(1); }
     };
 }
