@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::process::exit;
 use std::fs::{self};
 
@@ -10,7 +11,10 @@ use crate::errors::LogErr;
 use crate::parsing::write_clear;
 use crate::images::open_path;
 
-// Test link: https://culturesnapshots.com/wp-content/uploads/2022/06/ulleungdo-featured.jpg
+// Test links: 
+// PNG: https://w.wallhaven.cc/full/4y/wallhaven-4yld9x.png
+// PNG: https://w.wallhaven.cc/full/pk/wallhaven-pk6629.jpg
+// JPG: https://w.wallhaven.cc/full/q6/wallhaven-q6go6l.jpg
 // Test PATH: /home/nate/projects/pixtools/src/testimg/superchudpng.png 
 pub async fn open_url(url: &String) -> DynamicImage {
     print!("opening url");
@@ -37,12 +41,12 @@ pub async fn open_url(url: &String) -> DynamicImage {
     }
 
     write_clear("creating new temp files");
+    let _ = fs::remove_dir_all("temp");
     fs::create_dir("temp").log_err("Unable to create new TEMP directory for new file");
-    let mut file = File::create_new("temp/response.img").await.unwrap_or_else(|err| {
-        write_clear("ERROR: Unable to create temp file");
-        print!("{}", err);
-        exit(1) ;
-    });
+
+    let mut new_path = PathBuf::from("temp");
+    new_path.push("response.unknown");
+    let mut file = File::create_new(&new_path).await.log_err("Unable to create directory and new file");
 
     write_clear("writing to temp file");
     while let Some(chunk) = res_img.chunk().await.log_err("Unable to chunk file.") {
@@ -50,5 +54,7 @@ pub async fn open_url(url: &String) -> DynamicImage {
     }
 
     write_clear("opening path");
-    open_path(&String::from("temp/response.img")) // Its not broken. Im not fixing it.
+    open_path(&new_path.into_os_string()
+        .into_string()
+        .log_err("Unable to turn OS path into string"))
 }
