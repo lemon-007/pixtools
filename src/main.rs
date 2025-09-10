@@ -15,7 +15,7 @@ async fn main() {
 
     // A URL should always be the 2nd argument.
     let file_location: String =  parse_url(&args).unwrap_or_else(|error| {
-        println!("ERROR: This is not a valid URL. Dickhead. Make sure it's an image too. also type \"pixtools help\". ({:?})", error);
+        println!("ERROR: This is not a valid URL. Make sure it's an image too. also type \"pixtools help\". ({:?})", error);
         exit(1);
     });
 
@@ -28,9 +28,6 @@ async fn main() {
         false => http::open_url(&file_location).await,
     };
 
-    // order.into_iter().for_each(|_t| {
-    //     todo!() // Put it through each function that could be a token. Im done for now.
-    // });
 }
 
 fn parse_url(args: &Vec<String>) -> Result<String, ParsingError> {

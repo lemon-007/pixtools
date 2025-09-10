@@ -28,7 +28,7 @@ pub fn tokenize_args(args: &Vec<String>) -> Vec<TOKEN> {
 // Order: Path Type (path or url), Mode (clean or not), Extention (png, url, etc).
 pub fn sort_tokens(tokens: &Vec<TOKEN>) -> Vec<TOKEN> {
     let mut sorted_tokens: Vec<TOKEN> = Vec::new();
-    let mut fucked: bool = false;
+    let mut invalid_token: bool = false;
 
     if tokens.contains(&TOKEN::PATH) { sorted_tokens.push(TOKEN::PATH); }
     if tokens.contains(&TOKEN::CLEAN) { sorted_tokens.push(TOKEN::CLEAN); }
@@ -37,17 +37,17 @@ pub fn sort_tokens(tokens: &Vec<TOKEN>) -> Vec<TOKEN> {
 
     if tokens.contains(&TOKEN::GIF) && tokens.contains(&TOKEN::PNG) {
         println!("ERROR: You can't convert your image into 2 different types. (InvalidArgument)");
-        fucked = true;
+        invalid_token = true;
     }
 
     for t in tokens {
         if let TOKEN::ERR { wrong_token } = t {
             println!("ERROR: Unreadable token ({}).", wrong_token);
-            fucked = true;
+            invalid_token = true;
         }
     }
-    if fucked { 
-        println!("You must be retarded. That's ok. Type \"pixtools help\" for help.");
+    if invalid_token { 
+        println!("ERROR: Invalid token: Type \"pixtools help\" for help.");
         exit(1) 
     }
     return sorted_tokens

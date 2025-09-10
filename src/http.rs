@@ -15,7 +15,6 @@ use crate::images::open_path;
 // PNG: https://w.wallhaven.cc/full/4y/wallhaven-4yld9x.png
 // PNG: https://w.wallhaven.cc/full/pk/wallhaven-pk6629.jpg
 // JPG: https://w.wallhaven.cc/full/q6/wallhaven-q6go6l.jpg
-// Test PATH: /home/nate/projects/pixtools/src/testimg/superchudpng.png 
 pub async fn open_url(url: &String) -> DynamicImage {
     print!("opening url");
 
