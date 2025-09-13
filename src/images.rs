@@ -5,18 +5,16 @@ use std::process::exit;
 
 use image::{DynamicImage, ImageFormat, ImageReader};
 use crate::errors::{LogErr};
-use crate::parsing::{check_path, write_clear};
+use crate::parsing::{check_path};
 
 
 
 pub fn open_path(path: &String) -> DynamicImage{
-    write_clear("checking if PATH is valid");
     let valid_path = match check_path(path) {
         true => path.to_owned(),
-        false => { write_clear("ERROR: Invalid path\n"); exit(404) }
+        false => { println!("ERROR: Invalid path\n"); exit(404) }
     };
 
-    write_clear("checking if file type is valid");
     let image_format = determine_format(&valid_path)
         .log_err("Invalid filetype. Refer to the list in \"pixtools -h\"");
     
@@ -28,8 +26,8 @@ pub fn open_path(path: &String) -> DynamicImage{
     image_r.set_format(image_format);
     
     match image_r.decode() {
-        Ok(d) => { write_clear("image decoded"); return d },
-        Err(e) => { write_clear("ERROR: "); print!("\r({}).\n", e); exit(1); }
+        Ok(d) => return d,
+        Err(e) => { println!("ERROR: "); print!("\r({}).\n", e); exit(1); }
     };
 }
 
@@ -51,26 +49,26 @@ fn determine_format(p: &String) -> Result<ImageFormat, Error> {
 
     // Parsing file signatures
     if buf_vect == [137, 80, 78, 71, 13, 10, 26, 10] {
-        write_clear("image found as PNG");
+        println!("image found as PNG");
         //rename_img(http_path, "png");
         return Ok(ImageFormat::Png);
     } 
     
     else if buf_vect[0..3] == [255, 216, 255] {
-        write_clear("image found as JPG/JPEG");
+        println!("image found as JPG/JPEG");
         //rename_img(http_path, "jpg");
         return Ok(ImageFormat::Jpeg);
     } 
     
     else if (buf_vect[0..4] == [82, 73, 70, 70]) && 
             (buf_vect[6..8] == [0, 0]) {
-        write_clear("image found as WebP");
+        println!("image found as WebP");
         //rename_img(http_path, "webp");
         return Ok(ImageFormat::WebP);
     }
 
     else if buf_vect[0..6] == [71, 73, 70, 56, 57, 97] {
-        write_clear("image found as GIF");
+        println!("image found as GIF");
         //rename_img(http_path, "gif");
         return Ok(ImageFormat::Gif)
     }
