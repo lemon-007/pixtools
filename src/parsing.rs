@@ -1,13 +1,9 @@
-use std::io::{stdout, Write};
-use std::process::exit;
-use std::path::Path;
+use std::{path::Path, process::exit};
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum TOKEN {
     CLEAN,
     PATH,
-    GIF,
-    PNG,
     HELP,
     FILLOC { str: String}, // file location
     //ERR { wrong_token: String }
@@ -18,8 +14,6 @@ pub fn tokenize_args(args: &Vec<String>) -> Vec<TOKEN> {
     let mut tokens: Vec<TOKEN> = args.iter().map(|arg| {
         if matches!(arg.as_str(), "-clean" | "cl") { TOKEN::CLEAN }
         else if matches!(arg.as_str(), "-path" | "-p") { TOKEN::PATH }
-        else if matches!(arg.as_str(), "-gif") { TOKEN::GIF }
-        else if matches!(arg.as_str(), "-png") { TOKEN::PNG }
         else if matches!(arg.as_str(), "-help" | "-h") { TOKEN::HELP }
         else { TOKEN::FILLOC { str: arg.to_string() } }
     }).collect();
@@ -32,35 +26,20 @@ pub fn tokenize_args(args: &Vec<String>) -> Vec<TOKEN> {
 // Order: Path Type (path or url), Mode (clean or not), Extention (png, url, etc).
 pub fn sort_tokens(tokens: &Vec<TOKEN>) -> Vec<TOKEN> {
     let mut sorted_tokens: Vec<TOKEN> = Vec::new();
-    let mut invalid_token: bool = false;
+    let mut misc_token: usize = 0; // There can't be more than one file path. So if there is two, something is wrong.
+    if tokens.contains(&TOKEN::HELP) { super::display_help_message(); exit(0); }
 
     for t in tokens {
         let clone = t.to_owned().clone();
         if let TOKEN::FILLOC { str: _ } = t {
             sorted_tokens.push(clone);
+            misc_token += 1;
         }
     }
 
     if tokens.contains(&TOKEN::PATH) { sorted_tokens.push(TOKEN::PATH); }
     if tokens.contains(&TOKEN::CLEAN) { sorted_tokens.push(TOKEN::CLEAN); }
-    if tokens.contains(&TOKEN::GIF) { sorted_tokens.push(TOKEN::GIF); }
-    if tokens.contains(&TOKEN::PNG) { sorted_tokens.push(TOKEN::PNG); }
-
-    if tokens.contains(&TOKEN::GIF) && tokens.contains(&TOKEN::PNG) {
-        println!("ERROR: You can't convert your image into 2 different types. (InvalidArgument)");
-        invalid_token = true;
-    }
-
-    // for t in tokens {
-    //     if let TOKEN::ERR { wrong_token } = t {
-    //         println!("ERROR: Unreadable token ({}).", wrong_token);
-    //         invalid_token = true;
-    //     }
-    // }
-    // if invalid_token { 
-    //     println!("ERROR: Invalid token: Type \"pixtools help\" for help.");
-    //     exit(1) 
-    // }
+    if misc_token > 1 { println!("ERROR: Invalid argument(s)"); }
     return sorted_tokens
 }
 

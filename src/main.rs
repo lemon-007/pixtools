@@ -17,17 +17,18 @@ async fn main() {
     let tokens: Vec<parsing::TOKEN> = tokenize_args(&args);
     let order: Vec<parsing::TOKEN> = sort_tokens(&tokens);
 
-    // TODO: Change this to 
+    // TODO: Change this to FILLOC token somehow
     let file_location: &String = &String::from("CHANGE ME TO FILE PATH LATER");
 
-    // TODO: Change this to 'BufReader<File>' (standard, not tokio)
-    let _img = match order.contains(&parsing::TOKEN::PATH) {
+    let img = match order.contains(&parsing::TOKEN::PATH) {
         true => images::open_path(&file_location),
         false => http::open_url(&file_location).await,
     };
 
+    // TODO: Implement clean function here...
 }
 
+// TODO: Make this good, or remove if not needed.
 fn parse_url(args: &Vec<String>) -> Result<String, ParsingError> {
     if args.len() <= 1 {
         return Err(ParsingError::MissingArguments);

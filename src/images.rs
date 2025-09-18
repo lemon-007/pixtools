@@ -3,32 +3,24 @@ use std::io::{Error, ErrorKind, BufReader, Read};
 use std::path::Path;
 use std::process::exit;
 
-use image::{DynamicImage, ImageFormat, ImageReader};
+use image::ImageFormat;
 use crate::errors::{LogErr};
 use crate::parsing::{check_path};
 
 
 
-pub fn open_path(path: &String) -> DynamicImage{
+pub fn open_path(path: &String) -> BufReader<File>{
     let valid_path = match check_path(path) {
         true => path.to_owned(),
         false => { println!("ERROR: Invalid path\n"); exit(404) }
     };
 
-    let image_format = determine_format(&valid_path)
-        .log_err("Invalid filetype. Refer to the list in \"pixtools -h\"");
-    
-    let mut image_r: ImageReader<BufReader<File>> = ImageReader::open(valid_path)
-        .log_err("Unable to get img buffreader.");
+    determine_format(&valid_path).log_err("Invalid filetype. Refer to the list in \"pixtools -h\"");
+    let file = File::open(Path::new(&valid_path))
+        .log_err("Unable to open file from drive");
 
-    // Image passed varifications, start file manipulation.
-    image_r.no_limits();
-    image_r.set_format(image_format);
-    
-    match image_r.decode() {
-        Ok(d) => return d,
-        Err(e) => { println!("ERROR: "); print!("\r({}).\n", e); exit(1); }
-    };
+    let image_reader: BufReader<File> = BufReader::new(file);
+    image_reader
 }
 
 // Gets the file signiture of the current file to determine image format
@@ -53,25 +45,6 @@ fn determine_format(p: &String) -> Result<ImageFormat, Error> {
         //rename_img(http_path, "png");
         return Ok(ImageFormat::Png);
     } 
-    
-    else if buf_vect[0..3] == [255, 216, 255] {
-        println!("image found as JPG/JPEG");
-        //rename_img(http_path, "jpg");
-        return Ok(ImageFormat::Jpeg);
-    } 
-    
-    else if (buf_vect[0..4] == [82, 73, 70, 70]) && 
-            (buf_vect[6..8] == [0, 0]) {
-        println!("image found as WebP");
-        //rename_img(http_path, "webp");
-        return Ok(ImageFormat::WebP);
-    }
-
-    else if buf_vect[0..6] == [71, 73, 70, 56, 57, 97] {
-        println!("image found as GIF");
-        //rename_img(http_path, "gif");
-        return Ok(ImageFormat::Gif)
-    }
 
     else {
         return Err(Error::new(ErrorKind::InvalidData, "Invalid filetype."));
